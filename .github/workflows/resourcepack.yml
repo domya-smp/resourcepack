@@ -1,0 +1,95 @@
+name: Build and publish resource pack
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: resourcepack-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Validate and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build resource pack
+        run: python3 scripts/build.py
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: resourcepack
+          path: dist/resourcepack.zip*
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish release
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: build-${{ github.run_number }}-${{ github.run_attempt }}
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: resourcepack
+          path: dist
+
+      - name: Verify downloaded archive
+        working-directory: dist
+        run: sha256sum --check resourcepack.zip.sha256
+
+      - name: Create and publish release
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/release-notes.md" <<EOF
+          Resource pack built from commit ${SOURCE_SHA}.
+
+          Download resourcepack.zip and place it in your Minecraft resourcepacks directory.
+          resourcepack.zip.sha1 contains the value for resource-pack-sha1 in server.properties.
+
+          Build: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          EOF
+
+          gh release create "$RELEASE_TAG" \
+            dist/resourcepack.zip \
+            dist/resourcepack.zip.sha1 \
+            dist/resourcepack.zip.sha256 \
+            --target "$SOURCE_SHA" \
+            --title "Resource pack ${RELEASE_TAG}" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --draft
+          gh release edit "$RELEASE_TAG" --draft=false --latest
+
+      - name: Add download links to summary
+        shell: bash
+        run: |
+          base_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases"
+          {
+            echo "[Download latest resource pack](${base_url}/latest/download/resourcepack.zip)"
+            echo
+            echo "[Download this build](${base_url}/download/${RELEASE_TAG}/resourcepack.zip)"
+            echo
+            echo "SHA-1: $(cat dist/resourcepack.zip.sha1)"
+          } >> "$GITHUB_STEP_SUMMARY"
