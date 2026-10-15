@@ -9,7 +9,7 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
-ARCHIVE_NAME = "resourcepack.zip"
+ARCHIVE_NAME = "domsmp.zip"
 
 
 def main() -> None:
