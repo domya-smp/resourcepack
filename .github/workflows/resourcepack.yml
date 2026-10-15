@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.2
         with:
           name: domsmp
-          path: dist/domsmp.zip*
+          path: dist/domsmp.zip
           if-no-files-found: error
           retention-days: 30
 
@@ -58,24 +58,18 @@ jobs:
 
       - name: Verify downloaded archive
         working-directory: dist
-        run: sha256sum --check domsmp.zip.sha256
+        run: python3 -m zipfile --test domsmp.zip
 
       - name: Create and publish release
         shell: bash
         run: |
-          cat > "$RUNNER_TEMP/release-notes.md" <<EOF
-          DomSMP resource pack built from commit ${SOURCE_SHA}.
-
-          Download domsmp.zip and place it in your Minecraft resourcepacks directory.
-          domsmp.zip.sha1 contains the value for resource-pack-sha1 in server.properties.
-
-          Build: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
-          EOF
+          sha1="$(sha1sum dist/domsmp.zip)"
+          sha256="$(sha256sum dist/domsmp.zip)"
+          printf 'SHA-1: `%s`\n\nSHA-256: `%s`\n' \
+            "${sha1%% *}" "${sha256%% *}" > "$RUNNER_TEMP/release-notes.md"
 
           gh release create "$RELEASE_TAG" \
             dist/domsmp.zip \
-            dist/domsmp.zip.sha1 \
-            dist/domsmp.zip.sha256 \
             --target "$SOURCE_SHA" \
             --title "domsmp ${RELEASE_TAG}" \
             --notes-file "$RUNNER_TEMP/release-notes.md" \
@@ -90,6 +84,4 @@ jobs:
             echo "[Download latest resource pack](${base_url}/latest/download/domsmp.zip)"
             echo
             echo "[Download this build](${base_url}/download/${RELEASE_TAG}/domsmp.zip)"
-            echo
-            echo "SHA-1: $(cat dist/domsmp.zip.sha1)"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -9,7 +9,7 @@
 python3 scripts/build.py
 ```
 
-Requires Python 3.10+. Output: `dist/domsmp.zip` with SHA-1 and SHA-256 checksums.
+Requires Python 3.10+. Output: `dist/domsmp.zip`.
 
 ## Release
 

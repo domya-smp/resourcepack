@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Validate and package the resource pack using only the Python standard library."""
 
-import hashlib
 import json
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
@@ -41,14 +40,7 @@ def main() -> None:
             info.external_attr = 0o100644 << 16
             archive.writestr(info, path.read_bytes(), compress_type=ZIP_DEFLATED, compresslevel=9)
 
-    data = archive_path.read_bytes()
-    sha1 = hashlib.sha1(data, usedforsecurity=False).hexdigest()
-    sha256 = hashlib.sha256(data).hexdigest()
-    (DIST / f"{ARCHIVE_NAME}.sha1").write_text(f"{sha1}\n", encoding="ascii")
-    (DIST / f"{ARCHIVE_NAME}.sha256").write_text(f"{sha256}  {ARCHIVE_NAME}\n", encoding="ascii")
-    print(f"Built {archive_path.relative_to(ROOT)} ({len(files)} files, {len(data)} bytes)")
-    print(f"SHA-1: {sha1}")
-    print(f"SHA-256: {sha256}")
+    print(f"Built {archive_path.relative_to(ROOT)} ({len(files)} files, {archive_path.stat().st_size} bytes)")
 
 
 if __name__ == "__main__":
