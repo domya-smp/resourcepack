@@ -1,0 +1,4 @@
+Original 16×16 textures: AlasDiablo, Dio's Recycling Factory 2.1.0.
+https://github.com/AlasDiablo/Recycling-Factory
+Commit: 110a1ae8517c16dc2a661261e54b3ddbda459615
+Original license: All Rights Reserved. See the source project for terms.

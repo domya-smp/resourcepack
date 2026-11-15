@@ -1,0 +1,13 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "domsmp:font/off_season_title.png",
+      "height": 22,
+      "ascent": 20,
+      "chars": [
+        "\ue110\ue111"
+      ]
+    }
+  ]
+}
