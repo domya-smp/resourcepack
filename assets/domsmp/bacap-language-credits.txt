@@ -1,0 +1,14 @@
+BACAP Russian language translation
+
+Source: BACAP Language Pack 1.21, supplied as BACAP Language Pack 1.21.zip.
+Original resource: assets/minecraft/lang/ru_ru.json.
+Project: https://modrinth.com/resourcepack/bacap-language-pack
+BlazeandCave's Advancements Pack by Cavinator1.
+
+Russian translation authors, as credited in the source language file:
+SoSeDiK (1.4-1.10), vlad8599 (1.10), KorS1z (1.11-1.12),
+Marsik_the_alien (1.12-1.13), _InGloriouS_ (1.13.7), HarryDi (1.14),
+StrongDeep (1.15), vinelia (1.17-1.18), 1A_KapiBar (1.19-present).
+
+The 3615 translation entries are preserved. Comment-only lines were removed
+and the file was formatted as strict JSON for the DomSMP build validator.
